@@ -3,6 +3,8 @@
 
 
 
+using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using EmployeesHrApi.Data;
 using EmployeesHrApi.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -15,12 +17,17 @@ public class EmployeesController : ControllerBase
 
     private readonly EmployeeDataContext _context;
     private readonly ILogger<EmployeesController> _logger;
+    private readonly IMapper _mapper;
+    private readonly MapperConfiguration _config;
 
-    public EmployeesController(EmployeeDataContext context, ILogger<EmployeesController> logger)
+    public EmployeesController(EmployeeDataContext context, ILogger<EmployeesController> logger, IMapper mapper, MapperConfiguration config)
     {
         _context = context;
         _logger = logger;
+        _mapper = mapper;
+        _config = config;
     }
+
 
     // GET /employees/3
     [HttpGet("/employees/{employeeId:int}")]
@@ -29,15 +36,7 @@ public class EmployeesController : ControllerBase
         _logger.LogInformation("Got the following employeeId {0}", employeeId);
         var employee = await _context.Employees
             .Where(e => e.Id == employeeId)
-            .Select(e => new EmployeeDetailsResponseModel
-            {
-                Id = e.Id.ToString(),
-                FirstName = e.FirstName,
-                LastName = e.LastName,
-                Department = e.Department,
-                Email = e.Email,
-                PhoneExtension = e.PhoneExtensions
-            })
+            .ProjectTo<EmployeeDetailsResponseModel>(_config)
             .SingleOrDefaultAsync();
 
         if (employee is null)
@@ -57,14 +56,8 @@ public class EmployeesController : ControllerBase
     public async Task<ActionResult<EmployeesResponseModel>> GetEmployeesAsync([FromQuery] string department = "All")
     {
         var employees = await _context.GetEmployeesByDepartment(department)
-            .Select(emp => new EmployeesSummaryResponseModel
-            {
-                Id = emp.Id.ToString(),
-                FirstName = emp.FirstName,
-                LastName = emp.LastName,
-                Department = emp.Department,
-                Email = emp.Email,
-            }).ToListAsync(); // runs the query
+            .ProjectTo<EmployeesSummaryResponseModel>(_config)
+            .ToListAsync(); // runs the query
 
         var response = new EmployeesResponseModel
         {
