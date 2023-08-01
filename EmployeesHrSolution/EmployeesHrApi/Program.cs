@@ -1,4 +1,5 @@
 // This is Main .NET
+using AutoMapper;
 using EmployeesHrApi.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,6 +18,18 @@ builder.Services.AddDbContext<EmployeeDataContext>(options =>
 {
     options.UseSqlServer(employeesConnectionString);
 });
+
+
+var mapperConfig = new MapperConfiguration(opt =>
+{
+    opt.AddProfile<EmployeesHrApi.AutomapperProfiles.Employees>();
+});
+
+
+var mapper = mapperConfig.CreateMapper();
+
+builder.Services.AddSingleton<IMapper>(mapper);
+builder.Services.AddSingleton<MapperConfiguration>(mapperConfig);
 
 // above this is configuration for the "behind the scenes" thing in your API
 var app = builder.Build();
