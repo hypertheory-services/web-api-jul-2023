@@ -29,12 +29,22 @@ public class EmployeesController : ControllerBase
         _logger.LogInformation("Got the following employeeId {0}", employeeId);
         var employee = await _context.Employees
             .Where(e => e.Id == employeeId)
+            .Select(e => new EmployeeDetailsResponseModel
+            {
+                Id = e.Id.ToString(),
+                FirstName = e.FirstName,
+                LastName = e.LastName,
+                Department = e.Department,
+                Email = e.Email,
+                PhoneExtension = e.PhoneExtensions
+            })
             .SingleOrDefaultAsync();
 
-        if(employee is null)
+        if (employee is null)
         {
             return NotFound(); // 404
-        } else
+        }
+        else
         {
             return Ok(employee);
         }
@@ -56,9 +66,6 @@ public class EmployeesController : ControllerBase
                 Email = emp.Email,
             }).ToListAsync(); // runs the query
 
-
-   
-        
         var response = new EmployeesResponseModel
         {
             Employees = employees,
