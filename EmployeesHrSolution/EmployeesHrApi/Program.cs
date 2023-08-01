@@ -23,6 +23,7 @@ builder.Services.AddDbContext<EmployeeDataContext>(options =>
 var mapperConfig = new MapperConfiguration(opt =>
 {
     opt.AddProfile<EmployeesHrApi.AutomapperProfiles.Employees>();
+    opt.AddProfile<EmployeesHrApi.AutomapperProfiles.HiringRequestProfile>();
 });
 
 

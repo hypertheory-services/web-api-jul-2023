@@ -1,4 +1,5 @@
-﻿using EmployeesHrApi.Data;
+﻿using AutoMapper;
+using EmployeesHrApi.Data;
 using EmployeesHrApi.Models;
 using Microsoft.AspNetCore.Mvc;
 
@@ -7,10 +8,12 @@ namespace EmployeesHrApi.Controllers;
 public class HiringRequestsController : ControllerBase
 {
     private readonly EmployeeDataContext _context;
+    private readonly IMapper _mapper;
 
-    public HiringRequestsController(EmployeeDataContext context)
+    public HiringRequestsController(EmployeeDataContext context, IMapper mapper)
     {
         _context = context;
+        _mapper = mapper;
     }
 
     [HttpPost("/hiring-requests")]
@@ -22,21 +25,14 @@ public class HiringRequestsController : ControllerBase
             return BadRequest(ModelState); // 400
         }
         // 2. Save it to the database.
-        var newHiringRequest = new HiringRequests
-        {
-            FirstName = request.FirstName,
-            LastName = request.LastName,
-            HomeEmail = request.HomeEmail,
-            HomePhone = request.HomePhone,
-            RequestedDepartment = request.RequestedDepartment,
-            RequiredSalary = request.RequiredSalary,
-            Status = HiringRequestStatus.WaitingForJobAssignment
-        };
+
+        var newHiringRequest = _mapper.Map<HiringRequests>(request);
         _context.HiringRequests.Add(newHiringRequest);
         await _context.SaveChangesAsync();
         // 3. Return a 201 Created Status Code 
         //   - Add Header "Location" - with the Url of the new resource.
         //   - Return them a copy of the new resource
-        return Ok(newHiringRequest);
+        var response = _mapper.Map<HiringRequestResponseModel>(newHiringRequest);
+        return Ok(response);
     }
 }
