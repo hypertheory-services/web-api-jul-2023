@@ -29,12 +29,11 @@ public class HiringRequestsController : ControllerBase
     {
 
         var id = int.Parse(request.Id);
-        if (request.Status != HiringRequestStatus.WaitingForJobAssignment)
-        {
-            return BadRequest("Can only deny pending assignments");
-        }
+  
         var savedHiringRequest = await _context.HiringRequests.Where(h => h.Id == id)
             .SingleOrDefaultAsync();
+
+ 
 
         if (savedHiringRequest == null)
         {
@@ -42,6 +41,10 @@ public class HiringRequestsController : ControllerBase
         }
         else
         {
+            if (savedHiringRequest.Status != HiringRequestStatus.WaitingForJobAssignment)
+            {
+                return BadRequest("Can only deny pending assignments");
+            }
             savedHiringRequest.Status = HiringRequestStatus.Hired;
             
             var newHireRequest = new NewHireRequestModel
@@ -77,10 +80,7 @@ public class HiringRequestsController : ControllerBase
     public async Task<ActionResult> DenyHiringRequestAsync([FromBody] HiringRequestResponseModel request)
     {
         var id = int.Parse(request.Id);
-        if(request.Status != HiringRequestStatus.WaitingForJobAssignment)
-        {
-            return BadRequest("Can only deny pending assignments");
-        }
+       
         var savedHiringRequest = await _context.HiringRequests.Where(h => h.Id == id)
             .SingleOrDefaultAsync();
 
@@ -89,6 +89,10 @@ public class HiringRequestsController : ControllerBase
             return BadRequest();
         } else
         {
+            if (savedHiringRequest.Status != HiringRequestStatus.WaitingForJobAssignment)
+            {
+                return BadRequest("Can only deny pending assignments");
+            }
             savedHiringRequest.Status = HiringRequestStatus.Denied;
             await _context.SaveChangesAsync();
             return NoContent(); // or the mapped hiring request.
