@@ -28,6 +28,7 @@ public class HiringRequestsController : ControllerBase
 
         var newHiringRequest = _mapper.Map<HiringRequests>(request);
         _context.HiringRequests.Add(newHiringRequest);
+        
         await _context.SaveChangesAsync();
         // 3. Return a 201 Created Status Code 
         //   - Add Header "Location" - with the Url of the new resource.
