@@ -1,5 +1,7 @@
 ﻿
 
+using System.ComponentModel.DataAnnotations;
+
 namespace EmployeesHrApi.Models;
 
 public record EmployeesResponseModel
@@ -26,4 +28,16 @@ public record EmployeeDetailsResponseModel
     public string Email { get; set; } = string.Empty;
     public string Department { get; set; } = string.Empty;
     public string PhoneExtension { get; set; } = string.Empty;
+}
+
+public record EmployeeSalaryInformationResponse
+{
+   
+    public decimal Salary { get; init; }
+}
+
+public record EmployeeSalaryInformationRequest
+{
+    [Required]
+    public decimal? Salary { get; init; }
 }

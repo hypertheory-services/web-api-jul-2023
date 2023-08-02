@@ -70,7 +70,7 @@ public class HiringRequestsController : ControllerBase
             }
             catch (Exception)
             {
-                // do your plan B.
+                // do your plan B. (more sophisticated than this, probably)
                 emailAddress = "Check With Your Manager";
                 phoneExtension = "Check With Manager";
                 // log an error out, do something so the manager or whoever can follow up on this.

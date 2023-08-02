@@ -35,10 +35,15 @@ public class EmployeeDataContext : DbContext
     {
         if(department != "All")
         {
-            return Employees.Where(e => e.Department == department);
+            return GetActiveEmployees().Where(e => e.Department == department);
         } else
         {
-            return Employees;
+            return GetActiveEmployees();
         }
+    }
+
+    public IQueryable<Employee> GetActiveEmployees()
+    {
+        return Employees.Where(e => e.Fired == false);
     }
 }

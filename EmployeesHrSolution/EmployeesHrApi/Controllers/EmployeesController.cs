@@ -7,6 +7,7 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using EmployeesHrApi.Data;
 using EmployeesHrApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,13 +29,73 @@ public class EmployeesController : ControllerBase
         _config = config;
     }
 
+    [HttpDelete("/employees/{id:int}")]
+    public async Task<ActionResult> FireEmployeeAsync(int id)
+    {
+        var employee = await _context.Employees.Where(e => e.Id == id && e.Fired == false).SingleOrDefaultAsync();
+        if(employee is not null)
+        {
+            employee.Fired = true;
+            await _context.SaveChangesAsync();
+        }
+        return NoContent();
+    }
 
     // GET /employees/3
+  
+    [HttpGet("/employees/{employeeId:int}/salary")]
+    public async Task<ActionResult> GetAnEmployeesSalaryAsync(int employeeId)
+    {
+        var salary = await _context.GetActiveEmployees()
+            .Where(e => e.Id == employeeId)
+            .Select(e => e.Salary)
+            .SingleOrDefaultAsync();
+
+        if(salary == 0)
+        {
+            return NotFound();
+        } else
+        {
+            var response = new EmployeeSalaryInformationResponse { Salary = salary };
+            return Ok(response);
+        }
+    }
+
+    [HttpPut("/employees/{employeeId:int}/salary")]
+    public async Task<ActionResult> ReplaceSalaryAsync(int employeeId,[FromBody] EmployeeSalaryInformationRequest request) {
+        if(!ModelState.IsValid)
+        {
+            return BadRequest(ModelState);
+        }
+      
+        
+        var employee = await _context.GetActiveEmployees()
+            .Where(e => e.Id == employeeId)
+            .SingleOrDefaultAsync();
+
+        if(employee is null)
+        {
+            return NotFound();
+        } else
+        {
+            var newSalary = 0.0M;
+            if(request.Salary.HasValue)
+            {
+                newSalary = request.Salary.Value;
+            } else
+            {
+                throw new Exception("Unreachable");
+            }
+            employee.Salary = newSalary;
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+    }
     [HttpGet("/employees/{employeeId:int}")]
     public async Task<ActionResult> GetAnEmployeeAsync(int employeeId)
     {
         _logger.LogInformation("Got the following employeeId {0}", employeeId);
-        var employee = await _context.Employees
+        var employee = await _context.GetActiveEmployees()
             .Where(e => e.Id == employeeId)
             .ProjectTo<EmployeeDetailsResponseModel>(_config)
             .SingleOrDefaultAsync();
