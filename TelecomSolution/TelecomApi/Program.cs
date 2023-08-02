@@ -36,12 +36,6 @@ app.MapPost("/new-hires", (NewEmployeeRequest request) =>
 
 app.Run();
 
-/*{
-    "firstName": "Bob",
-    "lastName": "Smith",
-    "id": 99,
-    "department": "DEV"
-} */
 
 public record NewEmployeeRequest
 {
