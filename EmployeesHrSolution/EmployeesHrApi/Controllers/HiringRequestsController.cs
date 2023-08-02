@@ -2,6 +2,7 @@
 using AutoMapper.QueryableExtensions;
 using EmployeesHrApi.Data;
 using EmployeesHrApi.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -20,6 +21,29 @@ public class HiringRequestsController : ControllerBase
         _mapperConfig = mapperConfig;
     }
 
+    [HttpPost("/denied-hiring-requests")]
+    public async Task<ActionResult> DenyHiringRequestAsync([FromBody] HiringRequestResponseModel request)
+    {
+        var id = int.Parse(request.Id);
+        if(request.Status != HiringRequestStatus.WaitingForJobAssignment)
+        {
+            return BadRequest("Can only deny pending assignments");
+        }
+        var savedHiringRequest = await _context.HiringRequests.Where(h => h.Id == id)
+            .SingleOrDefaultAsync();
+
+        if(savedHiringRequest == null)
+        {
+            return BadRequest();
+        } else
+        {
+            savedHiringRequest.Status = HiringRequestStatus.Denied;
+            await _context.SaveChangesAsync();
+            return NoContent(); // or the mapped hiring request.
+        }
+    }
+
+    //[Authorize(Roles ="hiring-manager")]
     [ResponseCache(Location = ResponseCacheLocation.Any, Duration = 10)]
     [HttpPost("/hiring-requests")]
     public async Task<ActionResult> AddHiringRequestAsync([FromBody] HiringRequestCreateRequest request)
