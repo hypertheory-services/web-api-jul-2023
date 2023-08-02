@@ -64,3 +64,5 @@ The Http "unsafe" methods (POST, PUT, DELETE) are a *declarative* language for a
 | DELETE | Document      | `DELETE /employees/bob-smith` | Make this no longer exist                   | False     | False | True       |
 | PUT    | Collection    | `PUT /employees`              | Replace this collection                     | False     | False | False      |
 | PUT    | Document      | `PUT /employees/bob-smith`    | Replace this document                       | False     | False | True       |
+
+- Cacheable means that the response can have a cache control header that says how long this is "valid"
