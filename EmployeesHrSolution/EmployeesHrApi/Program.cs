@@ -1,5 +1,6 @@
 // This is Main .NET
 using AutoMapper;
+using EmployeesHrApi;
 using EmployeesHrApi.Data;
 using EmployeesHrApi.HttpAdapters;
 using Microsoft.EntityFrameworkCore;
@@ -42,7 +43,8 @@ builder.Services.AddHttpClient<TelecomHttpAdapter>(client =>
 {
     client.BaseAddress = new Uri(teleComUrl);
     client.DefaultRequestHeaders.Add("User-Agent", "employeeshrapi"); // example.
-});
+}).AddPolicyHandler(HttpSrePolicies.GetDefaultRetryPolicy())
+.AddPolicyHandler(HttpSrePolicies.GetDefaultCircuitBreaker());
 
 
 // above this is configuration for the "behind the scenes" thing in your API
